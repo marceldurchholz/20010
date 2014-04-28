@@ -2352,8 +2352,14 @@ try {
 		}
 	};
 
+	function clearIntervals() {
+		if (window._thisViewCardStart) {
+			_thisViewCardStart.answerCountdownLoopStop();
+			_thisViewCardStart.answerCountdownButtonDelayStop();
+		}
+	}
+	
 	function bindSwipeBack() {
-		// alert('bindSwipeBack');
 		$('#body').off( "swiperight", "#page-content").on( "swiperight", "#page-content", function( e ) {
 			e.preventDefault();
 			// alert('swiped on body');
@@ -2361,6 +2367,7 @@ try {
 			return(false);
 		});
 	}
+	bindSwipeBack();
 
 	window.addEventListener('load', function () {
 		new FastClick(document.body);
@@ -2369,8 +2376,10 @@ try {
 	$(window).bind('hashchange', function(){
 		showModal();
 		modifyiOS7StatusBar();
-		checkTopNaviRoles();
+		checkTopNaviAppConfig();
+		// checkTopNaviRoles();
 		bindSwipeBack();
+		clearIntervals();
 		showDeleteBar(false);
 		$("#flexiblecontent").animate({
 			marginLeft: "0px",
@@ -2380,6 +2389,25 @@ try {
 		});
 	});
 
+	/*
+	$('body').off('click','#captureVideoLinkButton').on('click','#captureVideoLinkButton',function(e) { 
+		e.preventDefault();
+		// $('#linkVideoUrl').val('bla');
+		var videoLink = $('#linkVideoUrl').val();
+		var popupid = 'popupBasic';
+		// var el = $( "#"+popupid );
+		var activepage = $('#popupBasic-popup');
+		var el = activepage.find('#popupBasic');
+		console.log(el);
+		el.popup( "close" );
+		$('#body').find('#popupBasic').each(function() {
+			console.log($(this));
+			$(this).remove();
+		});
+		// $('#popupBasic').remove();
+	});
+	*/
+	
 	$('body').off('click','#closewelcomepopupbtn').on('click','#closewelcomepopupbtn',function(e) { 
 		e.preventDefault();
 		setTimeout(function() {
@@ -2406,7 +2434,68 @@ try {
 		e.preventDefault();
 		// alert('bla');
 		showPageOptions();
-		checkTopNaviRoles();
+		// checkTopNaviRoles();
+		checkTopNaviAppConfig();
+	});
+	
+	$('body').off( "swipeleft", ".swipeToDeleteHover").on( "swipeleft", ".swipeToDeleteHover", function( e ) {
+	// $('body').off( "click", ".swipeToDeleteHover").on( "click", ".swipeToDeleteHover", function( e ) {
+		e.preventDefault();
+		// alert('swiped on element to hover');
+		var delbarid = $(this).attr('data-delbarid');
+		// alert(delbarid);
+		var delbar = $('#'+delbarid);
+		var w = $(window).width()-30-15;
+		delbar.css("width",w+"px"); // .css("z-index","auto");
+		delbar.css("opacity","1.0"); // .css("z-index","auto");
+		$(this).removeClass( 'swipeToDeleteHover' );
+		$(this).addClass( 'swipeToDeleteHoverActive' );
+		// $(this).find('input:text, input:checkbox').each(function() {
+	});
+	$('body').off( "swipeleft", ".swipeToDeleteHover").on( "swipeleft", ".swipeToDeleteHover", function( e ) {
+	// $('body').off( "click", ".swipeToDeleteHoverActive").on( "click", ".swipeToDeleteHoverActive", function( e ) {
+		e.preventDefault();
+		// alert('swiped on element to hover deactivate');
+		var delbarid = $(this).attr('data-delbarid');
+		// alert(delbarid);
+		var delbar = $('#'+delbarid);
+		delbar.css("width","45px"); // .css("z-index","auto");
+		delbar.css("opacity","0.5"); // .css("z-index","auto");
+		$(this).removeClass( 'swipeToDeleteHoverActive' );
+		$(this).addClass( 'swipeToDeleteHover' );
+	});
+	
+	$('body').off( "click", ".navigateButton").on( "click", ".navigateButton", function( e ) {
+		e.preventDefault();
+		var href = $(this).attr('href');
+		// alert(cardpageid);
+		window.location.href = href;
+		return(false);
+		// window.location.href = e.currentTarget.hash;
+	});
+	
+	$('body').off( "click", ".showDelBarBtn").on( "click", ".showDelBarBtn", function( e ) {
+		e.preventDefault();
+		// alert('swiped on element to hover activate');
+		var delbarid = $(this).attr('data-delbarid');
+		// alert(delbarid);
+		var delbar = $('#'+delbarid);
+		var w = $(window).width()-30-15;
+		delbar.css("width",w+"px"); // .css("z-index","auto");
+		delbar.css("opacity","1.0"); // .css("z-index","auto");
+		$(this).removeClass( 'showDelBarBtn' );
+		$(this).addClass( 'hideDelBarBtn' );
+	});
+	$('body').off( "click", ".hideDelBarBtn").on( "click", ".hideDelBarBtn", function( e ) {
+		e.preventDefault();
+		// alert('swiped on element to hover deactivate');
+		var delbarid = $(this).attr('data-delbarid');
+		// alert(delbarid);
+		var delbar = $('#'+delbarid);
+		delbar.css("width","45px"); // .css("z-index","auto");
+		delbar.css("opacity","0.5"); // .css("z-index","auto");
+		$(this).removeClass( 'hideDelBarBtn' );
+		$(this).addClass( 'showDelBarBtn' );
 	});
 	
 	
@@ -2415,10 +2504,10 @@ try {
 		e.preventDefault();
 		// alert('swiped on element');
 		var listitem = $(this);
-		deleteMessageSwitch(listitem);
+		deleteElementSwitch(listitem);
 	});
 	
-	function deleteMessageSwitch(el) {
+	function deleteElementSwitch(el) {
 		var listitem = el;
 		el.toggleClass( 'ui-btn-up-d' );
 		var selected = 0;
@@ -2436,9 +2525,9 @@ try {
 		// alert('swiped on element');
 		doConfirm('Der Eintrag kann nicht wiederhergestellt werden!', 'Wirklich löschen?', function (clickevent) { 
 			if (clickevent=="1") {
-				$.when( deleteMessageFlow() ).done(
+				$.when( deleteFlowClicked() ).done(
 					function( result ) {
-						console.log('end deleteMessageFlow');
+						// console.log('end deleteFlowClicked');
 					}
 				);
 			}
@@ -2452,69 +2541,66 @@ try {
 		var listitem = $(this);
 		doConfirm('Der Eintrag kann nicht wiederhergestellt werden!', 'Wirklich löschen?', function (clickevent) { 
 			if (clickevent=="1") {
-				deleteMessageFlow(listitem);
+				deleteFlowClicked(listitem);
 			}
 		}, "Ja,Nein");
 	});
 	*/
 	
-	function deleteMessageFlow() {
-		// alert('deleteMessageFlow');
-		// alert('deleteMessageFlow');
-		showModal();
-		var deferred = $.Deferred();
-		var count = 0;
-		$('.swipeToDelete').each(function () {
-			// aaa
-			// console.log($(this).attr('class'));
-			var this_id = $(this).attr('data-id');
-			$(this).remove();
-			var this_cat = $(this).attr('data-cat');
-			if ($(this).hasClass( "ui-btn-up-d" )) {
-				// selected = selected + 1;
-				// console.log('deleting flow id: '+this_id);
-				dpd.messages.get(this_id, function (result) {
-					// console.log(result);
-					var query = { $or:[{"sender":result.receiver,"receiver":result.sender}  ,  {"sender":result.sender,"receiver":result.receiver}] };
-					dpd.messages.get(query, function (messages) {
-						// console.log();
-						// $.each( messages, function( key, message ) {
-						for(key = 0; key < messages.length; key++) {
-							var message = messages[key];
-							// console.log(key);
-							// console.log(message);
-							dpd.messages.del(message.id, function (err) {
-								count++;
-								if(err) {
-									if (count==messages.length) deleteMessageFlowDone();
-								}
-								else {
-									if (count==messages.length) deleteMessageFlowDone();
-								}
-							});
-						}
-						// $('#MessagesNestedViewDiv').html('');
-						// window._thisMessagesViewNested.fetch();
-					});
-				});
-			}
-		});
-		// deferred.resolve(count);
-		// window._thisMessagesViewNested.fetch();
-		// return deferred.promise();
-		// alert(this_id);
+	function deleteFlowClicked() {
+		deleteMessageFlow();
 	}
 	
-	function deleteMessageFlowDone() {
+	function deleteMessageFlow() {
+		showModal();
+		var count = 0;
+		// console.log($('.swipeToDelete').find('li .ui-btn-up-d'));
+		$('.swipeToDelete').each(function () {
+			var this_cat = $(this).attr('data-cat');
+			if ($(this).hasClass( "ui-btn-up-d" )) {
+				$(this).remove();
+				if (this_cat=='messages') {
+					var this_id = $(this).attr('data-id');
+					dpd.messages.get(this_id, function (result) {
+						var query = { $or:[{"sender":result.receiver,"receiver":result.sender}  ,  {"sender":result.sender,"receiver":result.receiver}] };
+						dpd.messages.get(query, function (messages) {
+							for(key = 0; key < messages.length; key++) {
+								var message = messages[key];
+								dpd.messages.put(message.id, {"deleted":true}, function(result, err) {
+									count++;
+									if (count==messages.length) {
+										window._thisMessagesViewNested.fetch();
+										deleteFlowDone();
+									}
+								});
+							}
+						});
+					});
+				}
+				if (this_cat=='cardpages') {
+					var this_id = $(this).attr('data-cardpageid');
+					// console.log(this_id);
+					dpd.cardpages.put(this_id, {"deleted":true}, function(result, err) {
+						if(err) {
+							return console.log(err);
+							hideModal();
+						}
+						// console.log(result);
+						hideModal();
+					});
+					window._thisViewCardEditNested.initialize();
+					deleteFlowDone();
+				}
+			}
+		});
+	}
+	
+	function deleteFlowDone() {
 		console.log('done');
 		hideModal();
-		window._thisMessagesViewNested.fetch();
 		showDeleteBar(false);
 	}
 	
-	
-	
-	bindSwipeBack();
 	$('body').off( "click", ".messagesendbutton").on( "click", ".messagesendbutton", function( e ) {
 		e.preventDefault();
 		// alert('bla');
@@ -2593,6 +2679,26 @@ try {
 		}
 	}
 	
+	$('#body').off('change','.activecb').on('change','.activecb',function(e) { 
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		// alert(id);
+		var status = e.currentTarget.checked;
+		var dbtype = $(this).attr('data-dbtype');
+		if (dbtype=="video") dpd.videos.put(id, {"active":status});
+		else if (dbtype=="card") dpd.cards.put(id, {"active":status});
+		return(false);
+	});
+	
+	$('#body').off('change','.publiccb').on('change','.publiccb',function(e) { 
+		e.preventDefault();
+		var id = $(this).attr('data-id');
+		var status = e.currentTarget.checked;
+		var dbtype = $(this).attr('data-dbtype');
+		if (dbtype=="video") dpd.videos.put(id, {"public":status});
+		else if (dbtype=="card") dpd.cards.put(id, {"public":status});
+		return(false);
+	});
 	
 	$('#body').off( "keyup", "#messagetextarea").on( "keyup", "#messagetextarea", function( e ) {
 		/*
@@ -2669,23 +2775,16 @@ try {
 	
 	 
 	function checkTopNaviRoles() {
-		// alert('foo');
-		// dpd.users.me(function(me) {
 		 try {
 			$( "#pageOptions li" ).each(function(index, value) {
 				var lirole = $(this).attr('data-roles');
-				// console.log(value);
-				// console.log(lirole);
-				// console.log(checkRole(lirole));
-				if (lirole == '' || lirole == 'public' || lirole == undefined) { 
+				// if (lirole == '' || lirole == 'public' || lirole == undefined) { 
+				if (lirole == 'public') { 
 					$(this).css('visibility','visible');
 					$(this).css('display','block');
 				}
 				else {
 					if (lirole != undefined) {
-						//  && checkRole(lirole)==true
-						// var bla = checkRole(lirole);
-						// alert(bla);
 						if (checkRole(lirole)==true) {
 							$(this).css('visibility','visible');
 							$(this).css('display','block');
@@ -2697,22 +2796,54 @@ try {
 					}
 				}
 			});
-		// });
 		} catch (e) {
-			// alert(e);
-			// $( "#showPageOptions" ).hide();
 		}
+	}
 
+	function checkTopNaviAppConfig() {
+		 try {
+			// alert('checkTopNaviAppConfig');
+			$( "#pageOptions li" ).each(function(index, value) {
+				var liconfig = $(this).attr('data-appconfig');
+				// console.log('is '+liconfig+' enabled: '+checkAppConfig(liconfig));
+				if (checkAppConfig(liconfig)==true) {
+				// if (liconfig == '' || liconfig == 'public' || liconfig == undefined) { 
+					var lirole = $(this).attr('data-role');
+					// console.log('do i have access to '+lirole+': '+checkRole(lirole));
+					if (checkRole(lirole)) {
+						$(this).css('visibility','visible');
+						$(this).css('display','block');
+					}
+					else {
+						$(this).css('visibility','hidden');
+						$(this).css('display','none');
+					}
+				}
+				else {
+					$(this).css('visibility','hidden');
+					$(this).css('display','none');
+				}
+				
+			});
+		} catch (e) {
+		}
 	}
 
 	function checkRole(role) {
 		var show = false;
-		$.each( window.me.roles, function( key, value ) {
-			if (role==value) {
-				show = true;
-				return(show);
-			}
-		});
+		// if ($.inArray('user', window.me.roles) > -1) show = true;
+		// if (role=='provider' || role=='seeker') show = true;
+		// else 
+		// else 
+		if (role=='' || role==undefined) show = true;
+		else if (window.me.roles!=undefined) {
+			$.each( window.me.roles, function( key, value ) {
+				if (role==value) {
+					show = true;
+					return(show);
+				}
+			});
+		}
 		return(show);
 	}
 	function checkRoles(smroles) {
@@ -2728,10 +2859,16 @@ try {
 	
 	function checkAppConfig(role) {
 		var show = false;
-		if (role=='provider') show = true;
+		// console.log(role);
+		// if (role=='') alert('empty'); // show = true;
+		// else alert(role);
+		if (role=='') show = true;
+		else if (role=='user') show = true;
 		else if (window.system.owner.appviews!=undefined) {
+			// console.log(window.system.owner.appviews);
 			$.each( window.system.owner.appviews, function( key, value ) {
 				if (role==value) {
+					// console.log(role+' ?= '+value);
 					show = true;
 					return(show);
 				}
@@ -2834,7 +2971,7 @@ try {
 	function showModal() {
 		// if ($('.modalWindow')) return(false);
 		// console.log('showModal');
-		window.system.modaltimeout = 5000;
+		window.system.modaltimeout = 15000;
 		window.clearInterval(window.modaltimeoutvar);
 		window.modaltimeoutvar = window.setInterval(function() {
 			// console.log(window.system.modaltimeout);
@@ -2844,7 +2981,7 @@ try {
 				$('#breaktoDashboard').html(breaktoDashboardText);
 				$('#breaktoDashboard').show();
 				window.clearInterval(window.modaltimeoutvar);
-				window.system.modaltimeout = 5000;
+				window.system.modaltimeout = 15000;
 			}
 		},1000);
 		$("#body").append('<div class="modalWindow"/>');
@@ -2870,13 +3007,13 @@ try {
 	}
 
 	window.system = {
-		master: false,
-		kdnr: "20010",
+		master: window.master,
+		kdnr: window.kdnr,
 		owner: new Object(),
 		appoptions: new Array(),
 		me: new Object(),
-		aoid: "", // 042cb1572ffbea5d
-		uid: "", // 042cb1572ffbea5d
+		aoid: window.aoid,
+		uid: window.uid,
 		showtutorial: false,
 		contentHelper: 0,
 		timestamp: 0,
@@ -2905,6 +3042,7 @@ try {
 			}
 		}
 	}
+	
 	
 	function getOwnerData() {
 		// get owner data and roles
@@ -3144,7 +3282,7 @@ try {
 		alert('code: '    + error.code    + '\n' +
 			  'message: ' + error.message + '\n');
 	}
-
+	
 	function scrollBottom() {
 		// $('#page-content').stop().animate({
 		setTimeout(function() {
